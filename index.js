@@ -108,6 +108,27 @@ app.post('/alerts/:id/messages', async (req, res) => {
   }
 });
 
+async function eliminarAlertasCaducadas() {
+  const now = new Date();
+
+  try {
+    const snapshot = await admin.firestore().collection('alerts')
+      .where('expirationTimestamp', '<=', now)
+      .get();
+
+    snapshot.forEach(async (doc) => {
+      await doc.ref.delete();
+      console.log(`Alerta con ID ${doc.id} eliminada por caducidad`);
+    });
+  } catch (error) {
+    console.error('Error eliminando alertas caducadas:', error);
+  }
+}
+
+// Ejecutar la función de limpieza cada hora (3600000 ms)
+setInterval(eliminarAlertasCaducadas, 3600000);
+
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
