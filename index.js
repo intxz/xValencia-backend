@@ -1,6 +1,7 @@
 // index.js
 require('dotenv').config(); // Cargar variables de entorno desde .env
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
