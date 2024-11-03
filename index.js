@@ -4,6 +4,17 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const allowedOrigins = ['https://intxz.github.io', 'http://127.0.0.1:5500'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No autorizado por CORS'));
+    }
+  }
+}));
 // Middleware para analizar JSON en solicitudes entrantes
 app.use(express.json());
 
