@@ -58,6 +58,52 @@ app.post('/alerts', async (req, res) => {
       res.status(500).send('Error al crear alerta');
     }
 });
+
+app.patch('/alerts/:id/help', async (req, res) => {
+  const alertId = req.params.id;
+
+  try {
+    // Referencia al documento de la alerta específica en Firestore
+    const alertDocRef = admin.firestore().collection('alerts').doc(alertId);
+    
+    // Obtener el documento actual
+    const alertDoc = await alertDocRef.get();
+
+    if (!alertDoc.exists) {
+      return res.status(404).json({ message: 'Alerta no encontrada' });
+    }
+
+    // Incrementar el contador helpCount en 1
+    await alertDocRef.update({
+      helpCount: admin.firestore.FieldValue.increment(1),
+    });
+
+    res.status(200).json({ message: 'Contador de ayuda incrementado con éxito' });
+  } catch (error) {
+    console.error('Error al incrementar el contador de ayuda:', error);
+    res.status(500).send('Error al incrementar el contador de ayuda');
+  }
+});
+
+app.post('/alerts/:id/messages', async (req, res) => {
+  const alertId = req.params.id;
+  const { message } = req.body;
+
+  try {
+    const alertDocRef = admin.firestore().collection('alerts').doc(alertId);
+
+    // Añadir el nuevo mensaje al array de mensajes
+    await alertDocRef.update({
+      messages: admin.firestore.FieldValue.arrayUnion(message),
+    });
+
+    res.status(200).json({ message: 'Mensaje agregado con éxito' });
+  } catch (error) {
+    console.error('Error al agregar mensaje:', error);
+    res.status(500).send('Error al agregar mensaje');
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
