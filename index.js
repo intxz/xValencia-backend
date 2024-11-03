@@ -26,13 +26,17 @@ const admin = require('./firebaseConfig');
 app.get('/alerts', async (req, res) => {
   try {
     const snapshot = await admin.firestore().collection('alerts').get();
-    const alerts = snapshot.docs.map(doc => doc.data());
+    const alerts = snapshot.docs.map(doc => ({
+      id: doc.id, // Aquí agregamos el ID del documento
+      ...doc.data() // Incluimos el resto de los datos de la alerta
+    }));
     res.json(alerts);
   } catch (error) {
     console.error('Error obteniendo datos de Firebase:', error);
     res.status(500).send('Error obteniendo datos de Firebase');
   }
 });
+
 
 app.post('/alerts', async (req, res) => {
     const { title, description, priority, latitude, longitude } = req.body;
